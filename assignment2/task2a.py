@@ -14,6 +14,12 @@ def pre_process_images(X: np.ndarray):
     """
     assert X.shape[1] == 784, f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
+    mean_value = np.mean(X)
+    std_dev = np.std(X)
+    X = (X - mean_value) / std_dev
+    print("Mean value:", mean_value, "Standard deviation:", std_dev)
+    print("X.shape =", X.shape)
+    X = np.hstack((X, np.ones((X.shape[0], 1)))) # bias trick
     return X
 
 
@@ -29,7 +35,9 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
         targets.shape == outputs.shape
     ), f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+    Cn = -(targets * np.log(outputs) + (1-targets) * np.log(1 - outputs))
+    return Cn.mean()
+    #raise NotImplementedError
 
 
 class SoftmaxModel:
@@ -46,7 +54,7 @@ class SoftmaxModel:
             1
         )  # Always reset random seed before weight init to get comparable results.
         # Define number of input nodes
-        self.I = None
+        self.I = 785
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
         self.use_improved_weight_init = use_improved_weight_init
@@ -77,7 +85,15 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-        return None
+        #self.ws[0].shape = (785, 64)
+        #self.ws[1].shape = (64, 10)
+        
+        self.hidden_layer_output = np.divide(1, np.add(1, np.exp(-X @ self.ws[0]))) #y_hidden.shape = [batch_size, 64]  sigmoid        
+        z_k = self.hidden_layer_output @ self.ws[1] 
+        row_sums = np.sum(np.exp(z_k), axis=1)
+        row_sums = row_sums[:, np.newaxis]  
+        y_output = np.exp(z_k)/row_sums #y_output.shape = [batch_size, 10]   softmax regression
+        return y_output
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -95,6 +111,29 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
         self.grads = []
+        output_error = outputs - targets
+
+        # Compute the gradient for the output layer weights
+        output_gradient = np.outer(output_error, self.hidden_layer_output)
+
+        # Compute the error in the hidden layer
+        hidden_error = self.ws[1].T.dot(output_error)
+
+        # Compute the gradient for the hidden layer weights
+        hidden_gradient = np.outer(hidden_error * self.hidden_layer_output * (1 - self.hidden_layer_output), X)
+
+
+        """
+        self.grads = [None, None]
+        output_error = targets - outputs
+        self.grads[1] = -(X.T @ output_error)
+        self.grads[1] = self.grads[1]/targets.shape[0]
+        #self.hidden_layer_output
+        hidden_layer_error = (output_error.dot(self.ws[1].T))
+        # Calculate the gradient for the hidden layer weights based on the mean of the batch
+        self.grads[0] = hidden_layer_error * (self.hidden_layer_output / (1 - self.hidden_layer_output))#, axis=0)np.mean(
+        print("gradezzz", self.grads[0].shape, self.grads[1].shape)
+        """
         for grad, w in zip(self.grads, self.ws):
             assert (
                 grad.shape == w.shape
@@ -113,7 +152,16 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
         Y: shape [Num examples, num classes]
     """
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+    # Ensure Y is a 1D array
+    Y = Y.flatten()
+    # Get the number of examples
+    Num_examples = len(Y)
+    # Create an empty array with zeros
+    Y_one_hot = np.zeros((Num_examples, num_classes))
+    # Use advanced indexing to set the appropriate elements to 1
+    Y_one_hot[np.arange(Num_examples), Y] = 1
+    return Y_one_hot
+    #raise NotImplementedError
 
 
 def gradient_approximation_test(model: SoftmaxModel, X: np.ndarray, Y: np.ndarray):

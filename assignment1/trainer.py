@@ -52,6 +52,7 @@ class BaseTrainer:
     def train(
             self,
             num_epochs: int):
+
         """
         Training loop for model.
         Implements stochastic gradient descent with num_epochs passes over the train dataset.
@@ -62,6 +63,7 @@ class BaseTrainer:
         # Utility variables
         num_batches_per_epoch = self.X_train.shape[0] // self.batch_size
         num_steps_per_val = num_batches_per_epoch // 5
+        print("num_batches_per_epoch", num_batches_per_epoch, "num_steps_per_val", num_steps_per_val)
         # A tracking value of loss over all training steps
         train_history = dict(
             loss={},
@@ -71,7 +73,8 @@ class BaseTrainer:
             loss={},
             accuracy={}
         )
-
+        num_non_improvements = 0
+        best_val_loss = float('inf')
         global_step = 0
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
@@ -90,5 +93,18 @@ class BaseTrainer:
 
                     # TODO (Task 2d): Implement early stopping here.
                     # You can access the validation loss in val_history["loss"]
+
+                    """
+                    val_10_history = list(val_history["loss"].values())[-10:]
+                    #test = (val_10_history > val_loss)
+                    val_10_history_sum = np.sum((val_10_history >= list(val_history["loss"].values())[-11]))
+                   # print("global_step:", global_step, "epoch:", epoch)
+                    if val_10_history_sum == 0:
+                        print("Early stop", val_10_history)
+                        print("epoch:", epoch)
+                        return train_history, val_history
+                    """
                 global_step += 1
+        #print(val_10_history, val_10_history_sum, "test:\n", test)
+        print(global_step)
         return train_history, val_history

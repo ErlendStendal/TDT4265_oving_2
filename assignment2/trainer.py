@@ -71,7 +71,8 @@ class BaseTrainer:
             loss={},
             accuracy={}
         )
-
+        num_non_improvements = 0
+        best_val_loss = float('inf')
         global_step = 0
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
@@ -88,5 +89,15 @@ class BaseTrainer:
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
                     # TODO: Implement early stopping (copy from last assignment)
+                
+                    if val_loss < best_val_loss:
+                        best_val_loss = val_loss
+                        num_non_improvements = 0
+                    else:
+                        num_non_improvements += 1                    
+                    
+                    if num_non_improvements >= 50:
+                        print("epoch:", epoch, "Early stopping triggered. Validation loss did not improve for 10 consecutive checks.")
+                        return train_history, val_history
                 global_step += 1
         return train_history, val_history

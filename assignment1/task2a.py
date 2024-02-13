@@ -12,8 +12,16 @@ def pre_process_images(X: np.ndarray):
     """
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
+
     # TODO implement this function (Task 2a)
+    
+    
+
+    X = np.divide(X, 255/2)
+    X = np.subtract(X,1)
+    X = np.hstack((X, np.ones((X.shape[0], 1))))
     return X
+
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
@@ -25,16 +33,23 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
         Cross entropy error (float)
     """
     # TODO implement this function (Task 2a)
+    
+    #Cn = -(np.add( np.multiply(targets,np.log(outputs)) , np.multiply( np.subtract(1, targets), np.log( np.subtract(1, outputs) ) ) ))
+    Cn = -(targets * np.log(outputs) + (1-targets) * np.log(1 - outputs))
+    #Cn_sub = Cn.T[0]
+    #Cn_avg = Cn_sub.mean()
+
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    return 0
+    #print("test1")
+    return Cn.mean()
 
 
 class BinaryModel:
 
     def __init__(self):
         # Define number of input nodes
-        self.I = None
+        self.I = 785
         self.w = np.zeros((self.I, 1))
         self.grad = None
 
@@ -45,8 +60,10 @@ class BinaryModel:
         Returns:
             y: output of model with shape [batch size, 1]
         """
+       
         # TODO implement this function (Task 2a)
-        return None
+        y = np.divide(1, np.add(1, np.exp(-X @ self.w)))
+        return y
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -59,9 +76,21 @@ class BinaryModel:
         # TODO implement this function (Task 2a)
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
-        self.grad = np.zeros_like(self.w)
+        # w = [785, 1]
+        # grad = [785, 1]
+        # y_hatt = [batch size, 1]
+        # y = [batch size, 1]
+        # X = [batch size, 785]
+        #finne grad
+        
+        self.grad = -(X.T @ np.subtract(targets, outputs))
+        #self.grad1 = -(targets-outputs) * X #endre denne
+        #self.grad =np.mean(self.grad1, axis=0, keepdims=True).T
+        #print("grad:", self.grad.shape, self.grad[10],"grad1:", self.grad1.shape,"x:",  X.shape, "targets:", targets.shape, "hihi", hihi.shape, hihi[10])
+        self.grad = self.grad/targets.shape[0]
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
+
 
     def zero_grad(self) -> None:
         self.grad = None
