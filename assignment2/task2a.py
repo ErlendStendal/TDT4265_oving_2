@@ -35,10 +35,21 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
         targets.shape == outputs.shape
     ), f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
-    Cn = -(targets * np.log(outputs) + (1-targets) * np.log(1 - outputs))
+    Cn = - np.sum(targets * np.log(outputs), axis=1)
     return Cn.mean()
     #raise NotImplementedError
 
+def sigmoid(X):
+    return 1 / (1 + np.exp(-X))
+
+def sigmoid_derivative(X):
+    sig = sigmoid(X)
+    return sig * (1 - sig)
+
+def softmax(X):
+    exp = np.exp(X)
+    a = exp / exp.sum(axis=1, keepdims=True) 
+    return a
 
 class SoftmaxModel:
 
@@ -49,6 +60,7 @@ class SoftmaxModel:
         use_improved_sigmoid: bool,  # Task 3b hyperparameter
         use_improved_weight_init: bool,  # Task 3a hyperparameter
         use_relu: bool,  # Task 3c hyperparameter
+       
     ):
         np.random.seed(
             1
@@ -58,7 +70,8 @@ class SoftmaxModel:
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
         self.use_improved_weight_init = use_improved_weight_init
-
+        self.z_j = None
+        self.a_j = None
         # Define number of output nodes
         # neurons_per_layer = [64, 10] indicates that we will have two layers:
         # A hidden layer with 64 neurons and a output layer with 10 neurons.
@@ -87,12 +100,20 @@ class SoftmaxModel:
         # such as self.hidden_layer_output = ...
         #self.ws[0].shape = (785, 64)
         #self.ws[1].shape = (64, 10)
-        
+        """
         self.hidden_layer_output = np.divide(1, np.add(1, np.exp(-X @ self.ws[0]))) #y_hidden.shape = [batch_size, 64]  sigmoid        
-        z_k = self.hidden_layer_output @ self.ws[1] 
+        
         row_sums = np.sum(np.exp(z_k), axis=1)
         row_sums = row_sums[:, np.newaxis]  
         y_output = np.exp(z_k)/row_sums #y_output.shape = [batch_size, 10]   softmax regression
+        """
+
+        self.z_j = X @ self.ws[0]
+        self.a_j = sigmoid(self.z_j)
+        z_k = self.a_j @ self.ws[1] 
+        y_output = softmax(z_k)
+        #print("aj: ", self.a_j.shape)
+        #print("z_k:", z_k.shape)
         return y_output
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
@@ -109,31 +130,29 @@ class SoftmaxModel:
             targets.shape == outputs.shape
         ), f"Output shape: {outputs.shape}, targets: {targets.shape}"
         # A list of gradients.
+        # X: images of shape [batch size, 785]
         # For example, self.grads[0] will be the gradient for the first hidden layer
+
+        #self.ws[0].shape = (785, 64) w_ji = grad[0].shape
+        #self.ws[1].shape = (64, 10) w_kj = grad[1].shape 
+        #delta_j.shape = (64,10)
+        #y (batch size, 10)
+        #a_j (batch size,64)
+        #z_k (batchsize, 10)
+
         self.grads = []
-        output_error = outputs - targets
-
-        # Compute the gradient for the output layer weights
-        output_gradient = np.outer(output_error, self.hidden_layer_output)
-
-        # Compute the error in the hidden layer
-        hidden_error = self.ws[1].T.dot(output_error)
-
-        # Compute the gradient for the hidden layer weights
-        hidden_gradient = np.outer(hidden_error * self.hidden_layer_output * (1 - self.hidden_layer_output), X)
-
-
-        """
-        self.grads = [None, None]
-        output_error = targets - outputs
-        self.grads[1] = -(X.T @ output_error)
-        self.grads[1] = self.grads[1]/targets.shape[0]
-        #self.hidden_layer_output
-        hidden_layer_error = (output_error.dot(self.ws[1].T))
-        # Calculate the gradient for the hidden layer weights based on the mean of the batch
-        self.grads[0] = hidden_layer_error * (self.hidden_layer_output / (1 - self.hidden_layer_output))#, axis=0)np.mean(
-        print("gradezzz", self.grads[0].shape, self.grads[1].shape)
-        """
+        delta_k = -(targets - outputs)
+        delta_j = sigmoid_derivative(self.z_j) * (delta_k).dot(self.ws[1].T)
+        self.grads.append(X.T.dot(delta_j) / X.shape[0])
+        self.grads.append(self.a_j.T.dot(delta_k) / X.shape[0])
+        
+        
+    
+        
+        #self.grad = -(X.T @ np.subtract(targets, outputs))
+        # outputs: outputs of model of shape: [batch size, num_outputs]
+        #X: images of shape [batch size, 785]
+        # w shape [785, num_outputs]
         for grad, w in zip(self.grads, self.ws):
             assert (
                 grad.shape == w.shape
@@ -232,7 +251,7 @@ def main():
         model.ws[layer_idx] = np.random.uniform(-1, 1, size=w.shape)
 
     gradient_approximation_test(model, X_train, Y_train)
-
+    #print("test passed")
 
 if __name__ == "__main__":
     main()
