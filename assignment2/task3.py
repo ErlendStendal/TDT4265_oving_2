@@ -71,8 +71,7 @@ def main():
     plt.ylabel("Validation Accuracy")
     plt.legend()
     plt.show()
-        use_improved_weight_init,
-    labels.append(
+
 
 
 if __name__ == "__main__":

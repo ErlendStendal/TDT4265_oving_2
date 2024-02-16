@@ -43,9 +43,7 @@ class SoftmaxTrainer(BaseTrainer):
         self.use_momentum = use_momentum
         # Init a history of previous gradients to use for implementing momentum
         self.previous_grads = [np.zeros_like(w) for w in self.model.ws]
-        print("ws.shape", self.model.ws[0].shape, self.model.ws[1].shape)
-        for i in range(len(self.model.ws)):
-            self.model.ws[i] = np.random.uniform(-1, 1, self.model.ws[i].shape)
+        
         #print(self.model.ws)
     def train_step(self, X_batch: np.ndarray, Y_batch: np.ndarray):
         """
@@ -105,8 +103,8 @@ def main():
     shuffle_data=True
 
     # Settings for task 2 and 3. Keep all to false for task 2.
-    use_improved_sigmoid=False
-    use_improved_weight_init=False
+    use_improved_sigmoid=True
+    use_improved_weight_init=True
     use_momentum=False
     use_relu=False
 
@@ -149,7 +147,7 @@ def main():
     # Plot loss for first model (task 2c)
     plt.figure(figsize=(20, 12))
     plt.subplot(1, 2, 1)
-    plt.ylim([0.0, 0.9])
+    plt.ylim([0.0, 1.01])
     utils.plot_loss(train_history["loss"],
                     "Training Loss", npoints_to_average=10)
     utils.plot_loss(val_history["loss"], "Validation Loss")
@@ -158,7 +156,7 @@ def main():
     plt.ylabel("Cross Entropy Loss - Average")
     # Plot accuracy
     plt.subplot(1, 2, 2)
-    plt.ylim([0.8, 0.99])
+    plt.ylim([0.8, 1.01])
     utils.plot_loss(train_history["accuracy"], "Training Accuracy")
     utils.plot_loss(val_history["accuracy"], "Validation Accuracy")
     plt.xlabel("Number of Training Steps")

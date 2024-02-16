@@ -39,12 +39,18 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     return Cn.mean()
     #raise NotImplementedError
 
-def sigmoid(X):
-    return 1 / (1 + np.exp(-X))
+def sigmoid(X, use_improved_sigmoid):
+    if use_improved_sigmoid:
+        return(1.7159*np.tanh(2/3*X))
+    else:
+        return 1 / (1 + np.exp(-X))
 
-def sigmoid_derivative(X):
-    sig = sigmoid(X)
-    return sig * (1 - sig)
+def sigmoid_derivative(X, use_improved_sigmoid):
+    if use_improved_sigmoid:
+        return 1.1439 * (-np.tanh(2/3*X)**2 + 1)
+    else:
+        sig = sigmoid(X, False)
+        return sig * (1 - sig)
 
 def softmax(X):
     exp = np.exp(X)
@@ -87,6 +93,14 @@ class SoftmaxModel:
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
+        print("ws.shape", self.ws[0].shape, self.ws[1].shape)
+        if not use_improved_weight_init:
+            for i in range(len(self.ws)):
+                self.ws[i] = np.random.uniform(-1, 1, self.ws[i].shape)
+        else:
+            for i in range(len(self.ws)):
+                fan_in = self.ws[i].shape[0]
+                self.ws[i] = np.random.normal(loc=0, scale=1/np.sqrt(fan_in), size=self.ws[i].shape)
 
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
@@ -109,7 +123,7 @@ class SoftmaxModel:
         """
 
         self.z_j = X @ self.ws[0]
-        self.a_j = sigmoid(self.z_j)
+        self.a_j = sigmoid(self.z_j, self.use_improved_sigmoid)
         z_k = self.a_j @ self.ws[1] 
         y_output = softmax(z_k)
         #print("aj: ", self.a_j.shape)
@@ -142,7 +156,7 @@ class SoftmaxModel:
 
         self.grads = []
         delta_k = -(targets - outputs)
-        delta_j = sigmoid_derivative(self.z_j) * (delta_k).dot(self.ws[1].T)
+        delta_j = sigmoid_derivative(self.z_j, self.use_improved_sigmoid) * (delta_k).dot(self.ws[1].T)
         self.grads.append(X.T.dot(delta_j) / X.shape[0])
         self.grads.append(self.a_j.T.dot(delta_k) / X.shape[0])
         
