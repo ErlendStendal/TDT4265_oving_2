@@ -19,9 +19,14 @@ def calculate_accuracy(
         Accuracy (float)
     """
     # TODO: Implement this function (copy from last assignment)
-    accuracy = 0
+    y_hat = model.forward(X)
+    max_index = np.argmax(y_hat, axis=1)
+    pred = one_hot_encode(max_index, 10) #ndarray [0,0,1,0,0,0,0,0,0]
+    assert pred.shape == targets.shape,\
+            f"Grad shape: {pred}, w: {targets}"
+    equal_rows = np.all(pred == targets, axis=1)
+    accuracy = np.sum(equal_rows)/y_hat.shape[0]
     return accuracy
-
 
 class SoftmaxTrainer(BaseTrainer):
 
@@ -38,7 +43,10 @@ class SoftmaxTrainer(BaseTrainer):
         self.use_momentum = use_momentum
         # Init a history of previous gradients to use for implementing momentum
         self.previous_grads = [np.zeros_like(w) for w in self.model.ws]
-
+        print("ws.shape", self.model.ws[0].shape, self.model.ws[1].shape)
+        for i in range(len(self.model.ws)):
+            self.model.ws[i] = np.random.uniform(-1, 1, self.model.ws[i].shape)
+        #print(self.model.ws)
     def train_step(self, X_batch: np.ndarray, Y_batch: np.ndarray):
         """
         Perform forward, backward and gradient descent step here.
@@ -54,8 +62,15 @@ class SoftmaxTrainer(BaseTrainer):
         # TODO: Implement this function (task 2c)
 
         loss = 0
-
-
+        
+        y_hat = self.model.forward(X_batch)
+        self.model.backward(X_batch, y_hat, Y_batch)
+        loss = cross_entropy_loss(Y_batch, y_hat)
+        #self.model.w = np.subtract(self.model.w, self.learning_rate * self.model.grad)
+        #print(self.model.ws[0].shape, self.model.grads[0].shape)
+        self.model.ws[0] -= self.learning_rate * self.model.grads[0]
+        
+        self.model.ws[1] -= self.learning_rate * self.model.grads[1]
         return loss
 
     def validation_step(self):

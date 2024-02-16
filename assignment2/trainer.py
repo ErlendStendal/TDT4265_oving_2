@@ -97,7 +97,7 @@ class BaseTrainer:
                         num_non_improvements += 1                    
                     
                     if num_non_improvements >= 50:
-                        print("epoch:", epoch, "Early stopping triggered. Validation loss did not improve for 10 consecutive checks.")
+                        print("epoch:", epoch, "Early stopping triggered. Validation loss did not improve for 50 consecutive checks.")
                         return train_history, val_history
                 global_step += 1
         return train_history, val_history
