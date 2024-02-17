@@ -13,10 +13,12 @@ def main():
     momentum_gamma = .9  # Task 3 hyperparameter
     shuffle_data = True
 
-    use_improved_sigmoid = False
-    use_improved_weight_init = False
-    use_momentum = False
     use_relu = False
+    use_improved_weight_init = True
+    use_improved_sigmoid = True    
+    use_momentum = True
+    use_relu = False
+    learning_rate = .02
 
     # Load dataset
     X_train, Y_train, X_val, Y_val = utils.load_full_mnist()
@@ -35,7 +37,7 @@ def main():
         model, learning_rate, batch_size, shuffle_data,
         X_train, Y_train, X_val, Y_val,
     )
-    train_history, val_history = trainer.train(num_epochs)
+    train_history_64, val_history_64 = trainer.train(num_epochs)
 
     # Example created for comparing with and without shuffling.
     # For comparison, show all loss/accuracy curves in the same plot
@@ -43,8 +45,7 @@ def main():
 
 
 
-    use_improved_weight_init = True
-
+    neurons_per_layer = [32, 10]
     model = SoftmaxModel(
         neurons_per_layer,
         use_improved_sigmoid,
@@ -55,12 +56,8 @@ def main():
         model, learning_rate, batch_size, shuffle_data,
         X_train, Y_train, X_val, Y_val,
     )
-    train_history_weight, val_history_weight = trainer.train(num_epochs)
-
-    
-
-    use_improved_sigmoid = True
-
+    train_history_32, val_history_32 = trainer.train(num_epochs)
+    neurons_per_layer = [128, 10]
     model = SoftmaxModel(
         neurons_per_layer,
         use_improved_sigmoid,
@@ -71,46 +68,25 @@ def main():
         model, learning_rate, batch_size, shuffle_data,
         X_train, Y_train, X_val, Y_val,
     )
-    train_history_sigmoid, val_history_sigmoid = trainer.train(num_epochs)
-
-    
-
-    
-    use_momentum = True
-    learning_rate = .02
-
-    model = SoftmaxModel(
-        neurons_per_layer,
-        use_improved_sigmoid,
-        use_improved_weight_init,
-        use_relu)
-    trainer = SoftmaxTrainer(
-        momentum_gamma, use_momentum,
-        model, learning_rate, batch_size, shuffle_data,
-        X_train, Y_train, X_val, Y_val,
-    )
-    train_history_momentum, val_history_momentum = trainer.train(num_epochs)
-
-
+    train_history_128, val_history_128 = trainer.train(num_epochs)
 
 
     plt.subplot(1, 2, 1)
-    utils.plot_loss(train_history["loss"], "Task 2 Model", npoints_to_average=10)
-    utils.plot_loss(train_history_weight["loss"], "weight init", npoints_to_average=10)
-    utils.plot_loss(train_history_sigmoid["loss"], "weight init, sigmoid", npoints_to_average=10)
-    utils.plot_loss(train_history_momentum["loss"], "weight init, sigmoid, momentum", npoints_to_average=10)
+    utils.plot_loss(train_history_64["loss"], "64", npoints_to_average=10)
+    utils.plot_loss(train_history_32["loss"], "32", npoints_to_average=10)
+    utils.plot_loss(train_history_128["loss"], "128", npoints_to_average=10)
+
     plt.ylim([0, .4])
 
     plt.subplot(1, 2, 2)
     plt.ylim([0.85, 1.01])
-    utils.plot_loss(val_history["accuracy"], "Task 2 Model")
-    utils.plot_loss(val_history_weight["accuracy"], "weight init")
-    utils.plot_loss(val_history_sigmoid["accuracy"], "weight init, sigmoid")
-    utils.plot_loss(val_history_momentum["accuracy"], "weight init, sigmoid, momentum")
+    utils.plot_loss(val_history_64["accuracy"], "64")
+    utils.plot_loss(val_history_32["accuracy"], "32")
+    utils.plot_loss(val_history_128["accuracy"], "128")
     plt.ylabel("Validation Accuracy")
 
     plt.legend()
-    plt.savefig("task3_train_loss_validation_accuracy.png")
+    plt.savefig("task4ab_train_loss_validation_accuracy.png")
     plt.show()
 
 

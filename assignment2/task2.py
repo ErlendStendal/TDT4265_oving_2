@@ -66,9 +66,17 @@ class SoftmaxTrainer(BaseTrainer):
         loss = cross_entropy_loss(Y_batch, y_hat)
         #self.model.w = np.subtract(self.model.w, self.learning_rate * self.model.grad)
         #print(self.model.ws[0].shape, self.model.grads[0].shape)
-        self.model.ws[0] -= self.learning_rate * self.model.grads[0]
+        if self.use_momentum:
+            dW0 = self.model.grads[0] + self.momentum_gamma * self.previous_grads[0]
+            dW1 = self.model.grads[1] + self.momentum_gamma * self.previous_grads[1]
+            self.previous_grads[0] = dW0
+            self.previous_grads[1] = dW1
+            self.model.ws[0] -= self.learning_rate * dW0
+            self.model.ws[1] -= self.learning_rate * dW1
+        else:
+            self.model.ws[0] -= self.learning_rate * self.model.grads[0]
+            self.model.ws[1] -= self.learning_rate * self.model.grads[1]
         
-        self.model.ws[1] -= self.learning_rate * self.model.grads[1]
         return loss
 
     def validation_step(self):
@@ -96,7 +104,7 @@ class SoftmaxTrainer(BaseTrainer):
 def main():
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
     num_epochs=50
-    learning_rate=0.1
+    learning_rate=0.02 # 0.1
     batch_size=32
     neurons_per_layer=[64, 10]
     momentum_gamma=0.9  # Task 3 hyperparameter
@@ -105,7 +113,7 @@ def main():
     # Settings for task 2 and 3. Keep all to false for task 2.
     use_improved_sigmoid=True
     use_improved_weight_init=True
-    use_momentum=False
+    use_momentum=True
     use_relu=False
 
     # Load dataset
