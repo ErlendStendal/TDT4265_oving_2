@@ -66,17 +66,18 @@ class SoftmaxTrainer(BaseTrainer):
         loss = cross_entropy_loss(Y_batch, y_hat)
         #self.model.w = np.subtract(self.model.w, self.learning_rate * self.model.grad)
         #print(self.model.ws[0].shape, self.model.grads[0].shape)
-        if self.use_momentum:
-            dW0 = self.model.grads[0] + self.momentum_gamma * self.previous_grads[0]
-            dW1 = self.model.grads[1] + self.momentum_gamma * self.previous_grads[1]
-            self.previous_grads[0] = dW0
-            self.previous_grads[1] = dW1
-            self.model.ws[0] -= self.learning_rate * dW0
-            self.model.ws[1] -= self.learning_rate * dW1
-        else:
-            self.model.ws[0] -= self.learning_rate * self.model.grads[0]
-            self.model.ws[1] -= self.learning_rate * self.model.grads[1]
-        
+        for i in range(len(self.model.ws)):
+            if self.use_momentum:
+                dW = self.model.grads[i] + self.momentum_gamma * self.previous_grads[i]
+                
+                self.previous_grads[i] = dW
+                
+                self.model.ws[i] -= self.learning_rate * dW
+                
+            else:
+                self.model.ws[i] -= self.learning_rate * self.model.grads[i]
+                
+            
         return loss
 
     def validation_step(self):
@@ -106,7 +107,7 @@ def main():
     num_epochs=50
     learning_rate=0.02 # 0.1
     batch_size=32
-    neurons_per_layer=[64, 10]
+    neurons_per_layer=[64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 10]
     momentum_gamma=0.9  # Task 3 hyperparameter
     shuffle_data=True
 

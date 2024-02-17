@@ -76,13 +76,15 @@ class SoftmaxModel:
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
         self.use_improved_weight_init = use_improved_weight_init
-        self.z_j = None
-        self.a_j = None
+        self.hidden_layer_output = []
+        self.hidden_layer_input = []
+        #self.z_j = None
+        #self.a_j = None
         # Define number of output nodes
         # neurons_per_layer = [64, 10] indicates that we will have two layers:
         # A hidden layer with 64 neurons and a output layer with 10 neurons.
         self.neurons_per_layer = neurons_per_layer
-
+        self.num_hidden_layers = len(self.neurons_per_layer) - 1
         # Initialize the weights
         self.ws = []
         prev = self.I
@@ -93,8 +95,10 @@ class SoftmaxModel:
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
+
+
         print("ws.shape", self.ws[0].shape, self.ws[1].shape)
-        if not use_improved_weight_init:
+        if not self.use_improved_weight_init:
             for i in range(len(self.ws)):
                 self.ws[i] = np.random.uniform(-1, 1, self.ws[i].shape)
         else:
@@ -114,20 +118,35 @@ class SoftmaxModel:
         # such as self.hidden_layer_output = ...
         #self.ws[0].shape = (785, 64)
         #self.ws[1].shape = (64, 10)
-        """
-        self.hidden_layer_output = np.divide(1, np.add(1, np.exp(-X @ self.ws[0]))) #y_hidden.shape = [batch_size, 64]  sigmoid        
-        
-        row_sums = np.sum(np.exp(z_k), axis=1)
-        row_sums = row_sums[:, np.newaxis]  
-        y_output = np.exp(z_k)/row_sums #y_output.shape = [batch_size, 10]   softmax regression
-        """
 
+        input_data = X
+        self.hidden_layer_input = []
+        self.hidden_layer_output = []
+        for layer_index in range(self.num_hidden_layers):
+            # Compute the linear transformation for the current hidden layer
+            z_j = input_data @ self.ws[layer_index]
+            self.hidden_layer_input.append(z_j)
+            # Apply the activation function for the current hidden layer
+            a_j = sigmoid(z_j, self.use_improved_sigmoid)
+            
+            # Update the input for the next hidden layer or output layer
+            self.hidden_layer_output.append(a_j)
+            input_data = a_j
+
+
+        z_k = input_data @ self.ws[-1]
+        y_output = softmax(z_k)
+        
+
+
+        """
         self.z_j = X @ self.ws[0]
+        self.hidden_layer_input = [self.z_j]
         self.a_j = sigmoid(self.z_j, self.use_improved_sigmoid)
+        self.hidden_layer_output = [self.a_j]
         z_k = self.a_j @ self.ws[1] 
         y_output = softmax(z_k)
-        #print("aj: ", self.a_j.shape)
-        #print("z_k:", z_k.shape)
+        """
         return y_output
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
@@ -153,16 +172,38 @@ class SoftmaxModel:
         #y (batch size, 10)
         #a_j (batch size,64)
         #z_k (batchsize, 10)
+       
+        # Initialize a list to store gradients for each layer
+        #self.grads = [0] * (self.num_hidden_layers + 1)
 
+        # Compute the gradient for the output layer
+        
+        self.zero_grad()
+        delta_k = -(targets - outputs)
+        self.grads[-1] = self.hidden_layer_output[-1].T.dot(delta_k) / X.shape[0]
+        delta_j = delta_k
+        
+        # Backpropagate the error through the hidden layers
+        for layer_index in range(self.num_hidden_layers - 1, -1, -1):
+            
+            delta_j = (sigmoid_derivative(self.hidden_layer_input[layer_index], self.use_improved_sigmoid) * delta_j.dot(self.ws[layer_index + 1].T))
+        
+            if layer_index > 0:
+                self.grads[layer_index] = self.hidden_layer_output[layer_index - 1].T.dot(delta_j) / X.shape[0] 
+            else:
+                self.grads[layer_index] = X.T.dot(delta_j) / X.shape[0]
+        
+
+
+        """
         self.grads = []
         delta_k = -(targets - outputs)
         delta_j = sigmoid_derivative(self.z_j, self.use_improved_sigmoid) * (delta_k).dot(self.ws[1].T)
         self.grads.append(X.T.dot(delta_j) / X.shape[0])
         self.grads.append(self.a_j.T.dot(delta_k) / X.shape[0])
-        
-        
-    
-        
+        """
+
+
         #self.grad = -(X.T @ np.subtract(targets, outputs))
         # outputs: outputs of model of shape: [batch size, num_outputs]
         #X: images of shape [batch size, 785]
