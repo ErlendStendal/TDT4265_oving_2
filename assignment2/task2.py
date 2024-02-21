@@ -107,7 +107,7 @@ def main():
     num_epochs=50
     learning_rate=0.02 # 0.1
     batch_size=32
-    neurons_per_layer=[64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 10]
+    neurons_per_layer=[64, 10]
     momentum_gamma=0.9  # Task 3 hyperparameter
     shuffle_data=True
 
