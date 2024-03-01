@@ -30,10 +30,15 @@ def compute_loss_and_accuracy(
             Y_batch = utils.to_cuda(Y_batch)
             # Forward pass the images through our model
             output_probs = model(X_batch)
-
+            
             # Compute Loss and Accuracy
-
+            average_loss += loss_criterion(output_probs, Y_batch)
             # Predicted class is the max index over the column dimension
+            _, predicted = torch.max(output_probs.data, 1)
+            accuracy += (predicted == Y_batch).sum().item()
+    accuracy = accuracy/Y_batch.size(0)
+    average_loss = average_loss/Y_batch.size(0) #kan hende denne ikke funker
+    
     return average_loss, accuracy
 
 
