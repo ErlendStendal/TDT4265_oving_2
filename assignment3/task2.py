@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import utils
 from torch import nn
 from dataloaders import load_cifar10
+from trainer import compute_loss_and_accuracy
 from trainer import Trainer
 
 
@@ -82,6 +83,21 @@ class ExampleModel(nn.Module):
         return out
 
 
+def print_accuracy(trainer: Trainer):
+    datasets = {
+        "train": trainer.dataloader_train,
+        "test": trainer.dataloader_test,
+        "val": trainer.dataloader_val
+    }
+    trainer.load_best_model()
+    for dset, dl in datasets.items():
+        avg_loss, accuracy = compute_loss_and_accuracy(dl, trainer.model, trainer.loss_criterion)
+        print(
+            f"Dataset: {dset}, Accuracy: {accuracy}, loss: {avg_loss}"
+        )
+
+
+
 def create_plots(trainer: Trainer, name: str):
     plot_path = pathlib.Path("plots")
     plot_path.mkdir(exist_ok=True)
@@ -119,6 +135,7 @@ def main():
         batch_size, learning_rate, early_stop_count, epochs, model, dataloaders
     )
     trainer.train()
+    print_accuracy(trainer)
     create_plots(trainer, "task2")
 
 
