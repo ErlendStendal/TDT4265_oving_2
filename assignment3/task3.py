@@ -17,44 +17,46 @@ class ExampleModel(nn.Module):
         """
         super().__init__()
         # TODO: Implement this function (Task  2a)
-        num_filters = 32  # Set number of filters in first conv layer
+        num_filters = 64  # Set number of filters in first conv layer
         self.num_classes = num_classes
         # Define the convolutional layers
         self.feature_extractor = nn.Sequential(
             nn.Conv2d(
                 in_channels=image_channels,
                 out_channels=num_filters,
-                kernel_size=5,
+                kernel_size=3,
                 stride=1,
-                padding=2,
+                padding=1,
             ),
             nn.MaxPool2d(2, 2),
+            nn.Dropout(0.5),
             nn.ReLU(),
             nn.Conv2d(
-                in_channels=32,
+                in_channels=64,
                 out_channels=64,
-                kernel_size=5,
+                kernel_size=9,
                 stride=1,
-                padding=2,
+                padding=4,
             ),
             nn.MaxPool2d(2, 2),
+            nn.Dropout(0.25),
             nn.ReLU(),
-            #nn.Conv2d(
-            #    in_channels=64,
-            #    out_channels=128,
-            #    kernel_size=5,
-            #    stride=1,
-            #    padding=2,
-            #),
-            #nn.MaxPool2d(2, 2),
-            #nn.ReLU()
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=7,
+                stride=1,
+                padding=3,
+            ),
+            nn.MaxPool2d(2, 2),
+            nn.ReLU()
             
         )
 
         # The output of feature_extractor will be [batch_size, num_filters, 16, 16]
         
-        #self.num_output_features = 128 * 4 * 4
-        self.num_output_features = 64 * 8 * 8
+        self.num_output_features = 64 * 4 * 4
+        #self.num_output_features = 64 * 8 * 8
         # Initialize our last fully connected layer
         # Inputs all extracted features from the convolutional layers
         # Outputs num_classes predictions, 1 for each class.
