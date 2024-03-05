@@ -1,0 +1,24 @@
+baseline:
+Dataset: train, Accuracy: 0.828, loss: 0.516
+Dataset: test, Accuracy: 0.727, loss: 0.791
+Dataset: val, Accuracy: 0.735, loss: 0.770
+
+prøvde med kjerne på 3
+Dataset: train, Accuracy: 0.841, loss: 0.464
+Dataset: test, Accuracy: 0.735, loss: 0.796
+Dataset: val, Accuracy: 0.741, loss: 0.762
+
+prøvde med kjerne på 3 med dropout(0.1, 0.05)
+Dataset: train, Accuracy: 0.756, loss: 0.689
+Dataset: test, Accuracy: 0.698, loss: 0.880
+Dataset: val, Accuracy: 0.708, loss: 0.835
+
+prøvde med kjerne på 3 med dropout(0.1, 0.05)
+Dataset: train, Accuracy: 0.824, loss: 0.506
+Dataset: test, Accuracy: 0.740, loss: 0.774
+Dataset: val, Accuracy: 0.739, loss: 0.745
+
+prøvde med kjerne på 3 med dropout(0.2, 0.1)
+Dataset: train, Accuracy: 0.820, loss: 0.514
+Dataset: test, Accuracy: 0.732, loss: 0.823
+Dataset: val, Accuracy: 0.740, loss: 0.779

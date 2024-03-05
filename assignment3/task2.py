@@ -92,9 +92,7 @@ def print_accuracy(trainer: Trainer):
     trainer.load_best_model()
     for dset, dl in datasets.items():
         avg_loss, accuracy = compute_loss_and_accuracy(dl, trainer.model, trainer.loss_criterion)
-        print(
-            f"Dataset: {dset}, Accuracy: {accuracy}, loss: {avg_loss}"
-        )
+        print(f"Dataset: {dset}, Accuracy: {accuracy:.3f}, loss: {avg_loss:.3f}")
 
 
 

@@ -17,7 +17,7 @@ class ExampleModel(nn.Module):
         """
         super().__init__()
         # TODO: Implement this function (Task  2a)
-        num_filters = 64  # Set number of filters in first conv layer
+        num_filters = 32  # Set number of filters in first conv layer
         self.num_classes = num_classes
         # Define the convolutional layers
         self.feature_extractor = nn.Sequential(
@@ -29,24 +29,24 @@ class ExampleModel(nn.Module):
                 padding=1,
             ),
             nn.MaxPool2d(2, 2),
-            nn.Dropout(0.5),
+            nn.Dropout(0.1),
             nn.ReLU(),
             nn.Conv2d(
-                in_channels=64,
+                in_channels=num_filters,
                 out_channels=64,
-                kernel_size=9,
+                kernel_size=3,
                 stride=1,
-                padding=4,
+                padding=1,
             ),
             nn.MaxPool2d(2, 2),
-            nn.Dropout(0.25),
+            nn.Dropout(0.05),
             nn.ReLU(),
             nn.Conv2d(
                 in_channels=64,
-                out_channels=64,
-                kernel_size=7,
+                out_channels=128,
+                kernel_size=3,
                 stride=1,
-                padding=3,
+                padding=1,
             ),
             nn.MaxPool2d(2, 2),
             nn.ReLU()
@@ -55,7 +55,7 @@ class ExampleModel(nn.Module):
 
         # The output of feature_extractor will be [batch_size, num_filters, 16, 16]
         
-        self.num_output_features = 64 * 4 * 4
+        self.num_output_features = 128 * 4 * 4
         #self.num_output_features = 64 * 8 * 8
         # Initialize our last fully connected layer
         # Inputs all extracted features from the convolutional layers
@@ -97,9 +97,7 @@ def print_accuracy(trainer: Trainer):
     trainer.load_best_model()
     for dset, dl in datasets.items():
         avg_loss, accuracy = compute_loss_and_accuracy(dl, trainer.model, trainer.loss_criterion)
-        print(
-            f"Dataset: {dset}, Accuracy: {accuracy}, loss: {avg_loss}"
-        )
+        print(f"Dataset: {dset}, Accuracy: {accuracy:.3f}, loss: {avg_loss:.3f}")
 
 
 
@@ -140,7 +138,7 @@ def main():
         batch_size, learning_rate, early_stop_count, epochs, model, dataloaders
     )
     trainer.train()
-    #print_accuracy(trainer)
+    print_accuracy(trainer)
     create_plots(trainer, "task2")
 
 
