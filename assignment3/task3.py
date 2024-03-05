@@ -140,7 +140,7 @@ def main():
         batch_size, learning_rate, early_stop_count, epochs, model, dataloaders
     )
     trainer.train()
-    print_accuracy(trainer)
+    #print_accuracy(trainer)
     create_plots(trainer, "task2")
 
 

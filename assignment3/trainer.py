@@ -33,7 +33,7 @@ def compute_loss_and_accuracy(
             output_probs = model(X_batch)
             
             # Compute Loss and Accuracy
-            average_loss += loss_criterion(output_probs, Y_batch)
+            average_loss += loss_criterion(output_probs, Y_batch).item()
             # Predicted class is the max index over the column dimension
             _, predicted = torch.max(output_probs.data, 1)
             accuracy += (predicted == Y_batch).sum().item() / Y_batch.size(0)
@@ -161,6 +161,10 @@ class Trainer:
         self.optimizer.zero_grad()
 
         return loss.detach().cpu().item()
+
+
+
+
 
     def train(self):
         """

@@ -51,3 +51,8 @@ rm -rf ~/miniconda3/miniconda.sh
 
 ~/miniconda3/bin/conda init bash
 ~/miniconda3/bin/conda init zsh
+
+
+
+D:\miniicondda\envs\tdt4265\Lib\site-packages\torch\_tensor.py
+#Assuming metric_dict is the dict and metric_dict["loss"] is a tensor, use loss_array = metric_dict["loss"].detach().cpu().numpy().
