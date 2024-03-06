@@ -30,3 +30,12 @@ learning_rate = 4e-1 adadeltaoptimizer(skrev adagrad på bilde)
 Dataset: train, Accuracy: 0.897, loss: 0.310
 Dataset: test, Accuracy: 0.790, loss: 0.642
 Dataset: val, Accuracy: 0.791, loss: 0.609
+
+Dataset: train, Accuracy: 0.905, loss: 0.291
+Dataset: test, Accuracy: 0.794, loss: 0.616
+Dataset: val, Accuracy: 0.793, loss: 0.605
+
+
+Dataset: train, Accuracy: 0.943, loss: 0.170
+Dataset: test, Accuracy: 0.805, loss: 0.659
+Dataset: val, Accuracy: 0.802, loss: 0.632
