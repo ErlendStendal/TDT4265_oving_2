@@ -1,6 +1,7 @@
 import pathlib
 import matplotlib.pyplot as plt
 import utils
+import torch
 from torch import nn
 from dataloaders import load_cifar10
 from trainer import compute_loss_and_accuracy
@@ -28,6 +29,7 @@ class ExampleModel(nn.Module):
                 stride=1,
                 padding=1,
             ),
+            nn.BatchNorm2d(num_filters),
             nn.MaxPool2d(2, 2),
             nn.Dropout(0.1),
             nn.ReLU(),
@@ -38,6 +40,7 @@ class ExampleModel(nn.Module):
                 stride=1,
                 padding=1,
             ),
+            nn.BatchNorm2d(64),
             nn.MaxPool2d(2, 2),
             nn.Dropout(0.05),
             nn.ReLU(),
@@ -48,6 +51,7 @@ class ExampleModel(nn.Module):
                 stride=1,
                 padding=1,
             ),
+            nn.BatchNorm2d(128),
             nn.MaxPool2d(2, 2),
             nn.ReLU()
             
@@ -64,6 +68,7 @@ class ExampleModel(nn.Module):
         # included with nn.CrossEntropyLoss
         self.classifier = nn.Sequential(
             nn.Linear(self.num_output_features, 64),
+            nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.Linear(64 , num_classes)
         )
@@ -138,6 +143,7 @@ def main():
         batch_size, learning_rate, early_stop_count, epochs, model, dataloaders
     )
     trainer.train()
+    
     print_accuracy(trainer)
     create_plots(trainer, "task2")
 

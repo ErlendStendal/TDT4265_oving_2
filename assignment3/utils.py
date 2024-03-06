@@ -118,3 +118,59 @@ def plot_loss(
         alpha=0.2,
         label=f"{label} variance over {npoints_to_average} steps",
     )
+
+def plot_loss_compare(
+    loss_dict1: dict,  loss_dict2: dict, label1: str = None, label2: str = None, npoints_to_average=1, plot_variance=True
+):
+    """
+    Args:
+        loss_dict: a dictionary where keys are the global step and values are the given loss / accuracy
+        label: a string to use as label in plot legend
+        npoints_to_average: Number of points to average plot
+    """
+    global_steps1 = list(loss_dict1.keys())
+    loss1 = list(loss_dict1.values())
+    global_steps2 = list(loss_dict2.keys())
+    loss2 = list(loss_dict2.values())
+    if npoints_to_average == 1 or not plot_variance:
+        plt.plot(global_steps1, loss1, label=label1)
+        plt.plot(global_steps2, loss2, label=label2)
+        return
+
+    npoints_to_average = 10
+    num_points1 = len(loss1) // npoints_to_average
+    num_points2 = len(loss2) // npoints_to_average
+    mean_loss1 = []
+    loss_std1 = []
+    steps1 = []
+    for i in range(num_points1):
+        points1 = loss1[i * npoints_to_average : (i + 1) * npoints_to_average]
+        step1 = global_steps1[i * npoints_to_average + npoints_to_average // 2]
+        mean_loss1.append(np.mean(points1))
+        loss_std1.append(np.std(points1))
+        steps1.append(step1)
+    plt.plot(steps1, mean_loss1, label=f"{label1} (mean over {npoints_to_average} steps)")
+    plt.fill_between(
+        steps1,
+        np.array(mean_loss1) - np.array(loss_std1),
+        np.array(mean_loss1) + loss_std1,
+        alpha=0.2,
+        label=f"{label1} variance over {npoints_to_average} steps",
+    )
+    mean_loss2 = []
+    loss_std2 = []
+    steps2 = []
+    for i in range(num_points2):
+        points2 = loss2[i * npoints_to_average : (i + 1) * npoints_to_average]
+        step2 = global_steps2[i * npoints_to_average + npoints_to_average // 2]
+        mean_loss2.append(np.mean(points2))
+        loss_std2.append(np.std(points2))
+        steps2.append(step2)
+    plt.plot(steps2, mean_loss2, label=f"{label2} (mean over {npoints_to_average} steps)")
+    plt.fill_between(
+        steps2,
+        np.array(mean_loss2) - np.array(loss_std2),
+        np.array(mean_loss2) + loss_std2,
+        alpha=0.2,
+        label=f"{label2} variance over {npoints_to_average} steps",
+    )

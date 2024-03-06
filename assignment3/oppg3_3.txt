@@ -1,0 +1,32 @@
+baseline:
+Dataset: train, Accuracy: 0.840, loss: 0.474
+Dataset: test, Accuracy: 0.753, loss: 0.737
+Dataset: val, Accuracy: 0.757, loss: 0.702
+
+la inn to conv layers med 64 inn 64 ut
+Dataset: train, Accuracy: 0.883, loss: 0.345
+Dataset: test, Accuracy: 0.774, loss: 0.694
+Dataset: val, Accuracy: 0.768, loss: 0.690
+
+la inn fire conv layers med 64 inn 64 ut marginal forskjell
+Dataset: train, Accuracy: 0.893, loss: 0.317
+Dataset: test, Accuracy: 0.778, loss: 0.682
+Dataset: val, Accuracy: 0.783, loss: 0.662
+
+fully connected layer does not do anything
+
+la inn to conv layers med 64 inn 64 ut og et 128 128 layer
+Dataset: train, Accuracy: 0.907, loss: 0.280
+Dataset: test, Accuracy: 0.783, loss: 0.664
+Dataset: val, Accuracy: 0.784, loss: 0.644
+
+la inn adam optimizer og læring =2e-3
+Dataset: train, Accuracy: 0.890, loss: 0.324
+Dataset: test, Accuracy: 0.788, loss: 0.648
+Dataset: val, Accuracy: 0.791, loss: 0.645
+
+
+learning_rate = 4e-1 adadeltaoptimizer(skrev adagrad på bilde)
+Dataset: train, Accuracy: 0.897, loss: 0.310
+Dataset: test, Accuracy: 0.790, loss: 0.642
+Dataset: val, Accuracy: 0.791, loss: 0.609

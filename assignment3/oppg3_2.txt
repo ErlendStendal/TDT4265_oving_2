@@ -13,7 +13,7 @@ Dataset: train, Accuracy: 0.756, loss: 0.689
 Dataset: test, Accuracy: 0.698, loss: 0.880
 Dataset: val, Accuracy: 0.708, loss: 0.835
 
-prøvde med kjerne på 3 med dropout(0.1, 0.05)
+prøvde med kjerne på 3 med dropout(0.1, 0.05)   2m 6s å trene
 Dataset: train, Accuracy: 0.824, loss: 0.506
 Dataset: test, Accuracy: 0.740, loss: 0.774
 Dataset: val, Accuracy: 0.739, loss: 0.745
@@ -22,3 +22,37 @@ prøvde med kjerne på 3 med dropout(0.2, 0.1)
 Dataset: train, Accuracy: 0.820, loss: 0.514
 Dataset: test, Accuracy: 0.732, loss: 0.823
 Dataset: val, Accuracy: 0.740, loss: 0.779
+
+La inn batch normalization. trente like fort 2m 11s
+Dataset: train, Accuracy: 0.810, loss: 0.550
+Dataset: test, Accuracy: 0.739, loss: 0.759
+Dataset: val, Accuracy: 0.730, loss: 0.762
+
+stride isteden for pooling funka dårlig
+
+
+la inn batch normalization etter pooling isteden.
+Dataset: train, Accuracy: 0.834, loss: 0.490
+Dataset: test, Accuracy: 0.752, loss: 0.740
+Dataset: val, Accuracy: 0.746, loss: 0.746
+
+
+
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
